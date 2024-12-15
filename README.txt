@@ -1,76 +1,85 @@
-THIS IS THE CONFIGURATION FOR THE .env file
+# Patient Registration API
 
-/////////////////////////////////////////////////////
-APP_NAME=PR-Lavarel
-APP_ENV=local
-APP_KEY=base64:g9odlAkFfHCSC1jk8xC9xonJm5Ems/mfhwKnIk0y5wU=
-APP_DEBUG=true
-APP_TIMEZONE=UTC
-APP_URL=http://localhost
+This API allows registering patients, storing their details in a MySQL database, and sending asynchronous email notifications using Laravel and Docker.
 
-APP_LOCALE=en
-APP_FALLBACK_LOCALE=en
-APP_FAKER_LOCALE=en_US
+## Requirements
+- Docker & Docker Compose installed.
+- Mailtrap account for email testing.
+- MySQL database.
 
-APP_MAINTENANCE_DRIVER=file
-# APP_MAINTENANCE_STORE=database
+## Setup Instructions
 
-PHP_CLI_SERVER_WORKERS=4
+1. Clone the repository:
+   git clone https://github.com/Igdari/Ligth-it-Challenge---Patient-Registration
+   cd <repository-folder> // Your repository folder
 
-BCRYPT_ROUNDS=12
 
-LOG_CHANNEL=stack
-LOG_STACK=single
-LOG_DEPRECATIONS_CHANNEL=null
-LOG_LEVEL=debug
+2. Set environment variables:
+   - Copy the `.env.example` file to `.env`:
+     cp .env.example .env
 
-DB_CONNECTION=mysql
-DB_HOST=mysql
-DB_PORT=3306
-DB_DATABASE=laravel
-DB_USERNAME=laravel
-DB_PASSWORD=laravel
+   - Update `.env` with your configuration:
+     - Database:
+       DB_CONNECTION=mysql
+       DB_HOST=db
+       DB_PORT=3306
+       DB_DATABASE=patients
+       DB_USERNAME=root
+       DB_PASSWORD=password
 
-SESSION_DRIVER=database
-SESSION_LIFETIME=120
-SESSION_ENCRYPT=false
-SESSION_PATH=/
-SESSION_DOMAIN=null
+     - Mailtrap:
+       MAIL_MAILER=smtp
+       MAIL_HOST=sandbox.smtp.mailtrap.io
+       MAIL_PORT=2525
+       MAIL_USERNAME=<your-mailtrap-username>
+       MAIL_PASSWORD=<your-mailtrap-password>
+       MAIL_ENCRYPTION=null
+       MAIL_FROM_ADDRESS=no-reply@example.com
+       MAIL_FROM_NAME="Patient API"
 
-BROADCAST_CONNECTION=log
-FILESYSTEM_DISK=local
-QUEUE_CONNECTION=database
+3. Start Docker containers:
+   docker-compose up -d
 
-CACHE_STORE=database
-CACHE_PREFIX=
+4. Run migrations:
+   docker exec -it <php-container-name> php artisan migrate
 
-MEMCACHED_HOST=127.0.0.1
 
-REDIS_CLIENT=phpredis
-REDIS_HOST=127.0.0.1
-REDIS_PASSWORD=null
-REDIS_PORT=6379
+5. Queue Worker:
+   Ensure the queue worker is running for email notifications:
+   docker exec -it <php-container-name> php artisan queue:work
 
-MAIL_MAILER=smtp
-MAIL_HOST=sandbox.smtp.mailtrap.io
-MAIL_PORT=2525
-MAIL_USERNAME=c636d8210faaf8
-MAIL_PASSWORD=80def8b52d35c3
-MAIL_ENCRYPTION=null
-MAIL_FROM_ADDRESS=no-reply@example.com
-MAIL_FROM_NAME="${APP_NAME}"
 
-AWS_ACCESS_KEY_ID=
-AWS_SECRET_ACCESS_KEY=
-AWS_DEFAULT_REGION=us-east-1
-AWS_BUCKET=
-AWS_USE_PATH_STYLE_ENDPOINT=false
+## Usage
 
-VITE_APP_NAME="${APP_NAME}"
+- Register a Patient:
+  Send a `POST` request to `/api/register-patient` with the following JSON body:
+  {
+      "name": "John Doe",
+      "email": "john.doe@example.com",
+      "phone": "1234567890",
+      "document_photo": "<base64-encoded-file>"
+  }
 
-SMS_DRIVER=twilio
-TWILIO_SID=twilio_sid
-TWILIO_AUTH_TOKEN=twilio_auth_token
-TWILIO_PHONE_NUMBER=twilio_phone_numbe
+  
+- **Expected Response**:
+  {
+      "message": "Patient registered successfully."
+  }
 
-/////////////////////////////////////////////////////
+
+## Testing Email Notifications
+- Emails are sent asynchronously using the patient’s email address.
+- Check your Mailtrap inbox to verify emails.
+
+## Future Development
+- Implement SMS notifications using the stored `phone` field.
+
+## Notes
+- For development purposes, Mailtrap is used for email testing. No actual emails are sent to recipients.
+- Ensure Docker is running before executing any commands.
+
+## Troubleshooting
+- Docker Issues:
+  If containers fail to start, verify your Docker installation and ensure ports are not in use.
+- Email Issues:
+  Check Mailtrap credentials and queue worker status.
