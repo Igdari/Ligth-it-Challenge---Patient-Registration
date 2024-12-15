@@ -1,7 +1,6 @@
 services:
   app:
-    build:
-      context: .  # Usa el Dockerfile en el directorio actual
+    build: .
     container_name: patient-registration
     working_dir: /var/www
     volumes:
@@ -25,7 +24,6 @@ services:
 
   mysql:
     image: mysql:8.0
-    container_name: laravel_mysql
     ports:
       - "3306:3306"
     environment:
@@ -40,6 +38,7 @@ services:
 
 networks:
   laravel:
+    driver: bridge
 
 volumes:
   dbdata:

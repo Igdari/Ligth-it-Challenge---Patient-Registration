@@ -1,7 +1,15 @@
 FROM php:8.2-fpm
 
 # Instalar dependencias necesarias para Composer y Laravel
-RUN apt-get update && apt-get install -y curl unzip libpng-dev libjpeg-dev libfreetype6-dev
+RUN apt-get update && apt-get install -y \
+    curl \
+    unzip \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libmcrypt-dev \
+    libmariadb-dev-compat \
+    && docker-php-ext-install pdo_mysql
 
 # Instalar Composer
 RUN curl -sS https://getcomposer.org/installer | php \
